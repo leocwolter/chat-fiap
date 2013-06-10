@@ -6,6 +6,59 @@
   </head>
   <body>
     <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <p>Bem vindo ao <%= title %></p>
+    <p id="login-message"></p>
+
+    <form id="login">
+        <input id="login" type="text" name="login" />
+        <input id="password" type="password" name="password" />
+        <input type="submit" value="Vai!!!"/>
+    </form>
+
+    <ul id="messages">
+    </ul>
+
+
+    <form id="new-message">
+        <textarea class="message" placeholder="digite sua mensagem..."></textarea>
+        <input type="submit" value="Vai!!!"/>
+    </form>
+
+	<script src="/javascripts/jquery.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+
+    <script>
+    	$(function(){
+    		var socket = io.connect(document.URL);
+            $("#new-message").submit(function(event){
+                event.preventDefault();
+                var message = $(this).find(".message").val();
+                console.log(socket);
+                socket.emit("new-message", message);
+            });
+
+    		$("#login").submit(function(event){
+				event.preventDefault();
+                var login = $(this).find("#login").val();
+				var password = $(this).find("#password").val();
+                var user = {
+                    login : login,
+                    password : password
+                }
+				socket.emit("login", user, function(data){
+                    if(data.success){
+                        $("#login").hide();
+                        $("#new-message").show();
+                    }
+                    $("#login-message").html(data.message);
+                });
+    		});
+
+    		socket.on("new-message-recieved", function(message){
+    			var li = $("<li>").html(message);
+    			$("#messages").append(li);
+    		});
+    	});
+    </script>
   </body>
 </html>
