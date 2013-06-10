@@ -45,8 +45,9 @@
                     login : login,
                     password : password
                 }
-				socket.emit("login", user, function(data){
-                    if(data.success){
+
+    			socket.emit("login", user, function(data){
+                   if(data.success){
                         $("#login").hide();
                         $("#new-message").show();
                     }
@@ -54,10 +55,20 @@
                 });
     		});
 
-    		socket.on("new-message-recieved", function(message){
-    			var li = $("<li>").html(message);
-    			$("#messages").append(li);
-    		});
+    		socket.on("new-message-recieved", newMessage);
+
+            socket.on("logout", function(user){
+                newMessage("O usuário " + user.login + " foi disconectado");
+            });
+
+            socket.on("new-user", function(user){
+                newMessage("O usuário " + user.login + " se conectou");
+            });
+
+            function newMessage(message){                
+                var li = $("<li>").html(message);
+                $("#messages").append(li);
+            }
     	});
     </script>
   </body>

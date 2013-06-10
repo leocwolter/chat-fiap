@@ -46,11 +46,12 @@ io.on("connection", function(client){
 
 	client.on("login", function(user, callback){
 		if(user.password.length >= 8){
-			console.log("logado");
+            client.set("currentUser", user);
 			callback({
 				"success" : true,
 				"message" : "Logado como " + user.login
 			});
+			client.broadcast.emit("new-user", user);
 		}else{
 			callback({
 				"success" : false,
@@ -58,4 +59,16 @@ io.on("connection", function(client){
 			});
 		}
 	});
+
+	client.on("disconnect", function(){
+		client.get("currentUser", function(error, user){
+			var logged = (user != undefined);
+			console.log("deslogando " + user);
+			console.log(error);
+			if(logged){	
+				client.broadcast.emit("logout", user);
+			}
+		});
+	});
 });
+
